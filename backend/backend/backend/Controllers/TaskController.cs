@@ -26,11 +26,25 @@ namespace backend.Controllers
             _env = env;
         }
 
+        // hiển thị danh sách task có filter(all/done/pending)
         [HttpGet]
-        public JsonResult Get()
+        public JsonResult Get([FromQuery] string status = "all")
         {
-            string query = @"
-                Select TaskId, TaskTitle, Description, Priority, StartDay, EndDay from Tasks;
+            string queryFilter = status.ToLower() switch
+            {
+                "pending" => "Where IsDone = 0",
+                "done" => "Where IsDone = 1",
+                _ => ""
+            };
+            string query = $@"
+                SELECT t.TaskId, t.TaskTitle, t.Description, t.Priority, t.StartDay, t.EndDay,
+                COALESCE(JSON_ARRAYAGG(ta.TagName), JSON_ARRAY()) AS TagList
+                FROM Tasks AS t
+                LEFT JOIN task_tags AS tt ON tt.TaskId = t.TaskId
+                LEFT JOIN Tags AS ta ON ta.TagId  = tt.TagId
+                {queryFilter}                    
+                GROUP BY t.TaskId, t.TaskTitle, t.Description, t.Priority, t.StartDay, t.EndDay
+                ORDER BY t.StartDay DESC, t.Priority DESC;
              ";
 
             DataTable table = new DataTable();
@@ -76,11 +90,11 @@ namespace backend.Controllers
                 }
             }
 
-            // 2) Nếu không tìm thấy thì trả về chuỗi rỗng (hoặc bạn có thể trả về "{}")
+            //Nếu không tìm thấy thì trả về chuỗi rỗng 
             if (table.Rows.Count == 0)
                 return "";
 
-            // 3) Lấy row đầu và map vào object C# tạm
+            //Lấy row đầu và map vào object 
             var row = table.Rows[0];
             var obj = new
             {
@@ -193,6 +207,7 @@ namespace backend.Controllers
             return new JsonResult("deleted successfully");
         }
 
+        // để complete task
         [HttpPut("complete/{id}")]
         public JsonResult MarkComplete(int id)
         {
@@ -216,6 +231,35 @@ namespace backend.Controllers
                 return new JsonResult("Không cập nhật thành công");
 
             return new JsonResult("Cập nhật thành công");
+        }
+
+        // thống kê báo cáo task
+        [HttpGet("report")]
+        public JsonResult GetReport()
+        {
+            string query = @"
+                SELECT COUNT(*) AS total_tasks,SUM(IsDone = 1) AS DoneTasks,
+                SUM(IsDone = 0) AS PendingTasks,
+                SUM(Priority='High')  AS HighPriority,
+                SUM(Priority='Medium') AS MediumPriority,
+                SUM(Priority='Low') AS LowPriority FROM tasks;";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
+            MySqlDataReader myReader;
+            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+            {
+                mycon.Open();
+                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
+                {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    mycon.Close();
+                }
+            }
+            return new JsonResult(table);
         }
     }
 }
