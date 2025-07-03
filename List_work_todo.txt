@@ -1,0 +1,4 @@
+- CRUD các task cần hoàn thành(data: title, description, start day, end day, tag(màu),  tiên nhiệm vụ, isDone)
+- Hiển thị danh sách task: sắp xếp nhóm theo ngày bắt đầu, việc ưu tiên hơn dược dẩy lên trước
+- đánh dấu hoàn thành task
+- Thống kê mini (số lượng task done, và undone)

@@ -1,0 +1,14 @@
+# Visual Studio cache, build output, etc.
+.vs/
+bin/
+obj/
+
+# Config files
+*.user
+*.suo
+
+# Rider IDE
+.idea/
+
+# Mac/Linux FS metadata
+.DS_Store
