@@ -1,0 +1,102 @@
+<section style="margin-top: 100px;" class="container">
+<div class="text-center my-4">
+  <button
+    type="button"
+    class="btn btn-primary btn-lg px-5 shadow"
+    (click)="addClick()"
+    data-bs-toggle="modal"
+    data-bs-target="#TagModal">
+    <i class="bi bi-plus-circle me-2"></i> Add Tag
+  </button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Task Belong</th>
+        <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let tag of tags">
+        <td>{{ tag.TagId }}</td>
+        <td>{{ tag.TagName }}</td>
+        <td>{{ tag.TaskList }}</td>
+        <td>
+        <button
+          type="button"
+          class="btn btn-light me-1"
+          (click)="editClick(tag)"
+          data-bs-toggle="modal"
+          data-bs-target="#TagModal">
+          <!-- edit icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+</svg>
+        </button>
+        <button
+          type="button"
+          class="btn btn-light"
+          (click)="deleteClick(tag.TagId)"
+          data-bs-toggle="modal"
+          data-bs-target="#TagModal">
+          <!-- delete icon -->
+           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+</svg>
+        </button>
+      </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="TagModal" tabindex="-1" aria-labelledby="TagModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ modalTitle }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="TagName" class="form-label">Tag Name</label>
+                    <input type="text" class="form-control" id="TagName" [(ngModel)]="TagName" name="TagName">
+                </div>
+                <div class="mb-3">
+                    <label for="TaskList" class="form-label">Task List</label>
+                    <input type="text" class="form-control" id="TaskList" [(ngModel)]="TaskList" name="TaskList">
+                </div>
+                <button
+                *ngIf="modalTitle === 'Add Tag'"
+                 type="button" class="btn btn-primary" (click)="createClick()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3H4.5a.5.5 0
+                        0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Add Tag
+                </button>
+                <button
+                *ngIf="modalTitle === 'Edit Tag'"
+                 type="button" class="btn btn-primary" (click)="updateClick()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3H4.5a.5.5 0
+                        0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Update Tag
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5
+                        0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+                    </svg>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</section>

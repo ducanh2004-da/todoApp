@@ -1,0 +1,46 @@
+<section style="margin-top: 100px;" class="hero">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+      </div>
+      <div class="carousel-inner">
+        <div class="carousel-item active" style="background-image: url('../../assets/phongcanh1.jpeg')">
+          <div class="carousel-caption text-start text-white px-4">
+            <h1 class="display-4 fw-bold"><i class="bi bi-list-check me-2"></i>Quản lý công việc</h1>
+            <p class="lead mb-4">Thêm, sửa, xóa và quản lý task dễ dàng.</p>
+            <button routerLink="task" class="btn btn-lg btn-outline-light btn-start">
+              <i class="bi bi-rocket-fill me-1"></i> Bắt đầu ngay
+            </button>
+          </div>
+        </div>
+        <div class="carousel-item" style="background-image: url('../../assets/phongcanh2.jpeg')">
+          <div class="carousel-caption text-center text-white px-4">
+            <h1 class="display-4 fw-bold"><i class="bi bi-tags me-2"></i>Phân loại bằng nhãn</h1>
+            <p class="lead mb-4">Gắn tag màu cho từng task để công việc thú vị hơn.</p>
+            <button routerLink="tag" class="btn btn-lg btn-outline-light btn-start">
+              <i class="bi bi-rocket-fill me-1"></i> Bắt đầu ngay
+            </button>
+          </div>
+        </div>
+        <div class="carousel-item" style="background-image: url('../../assets/phongcanh3.jpeg')">
+          <div class="carousel-caption text-end text-white px-4">
+            <h1 class="display-4 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Báo cáo tổng quan</h1>
+            <p class="lead mb-4">Xem thống kê các task của bạn.</p>
+            <button routerLink="report" class="btn btn-lg btn-outline-light btn-start">
+              <i class="bi bi-rocket-fill me-1"></i> Bắt đầu ngay
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </section>

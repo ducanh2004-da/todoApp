@@ -1,0 +1,119 @@
+<section style="margin-top: 100px;">
+<div class="text-center my-4">
+  <button
+    type="button"
+    class="btn btn-primary btn-lg px-5 shadow"
+    (click)="addClick()"
+    data-bs-toggle="modal"
+    data-bs-target="#TaskModal">
+    <i class="bi bi-plus-circle me-2"></i> Add Task
+  </button>
+</div>
+<!-- Task Grid -->
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" *ngFor="let task of tasks">
+        <div class="card card-task h-100 priority-{{task.Priority}}">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">
+              {{task.TaskTitle}}
+              <small class="text-muted float-end">{{task.StartDay}}</small> - <small class="text-muted float-end">{{task.EndDay}}</small>
+            </h5>
+            <p class="card-text mb-2">{{task.Description}}</p>
+
+            <!-- Tags -->
+            <div class="mb-2">
+              <span
+                    class="badge bg-secondary badge-tag">
+                {{task.TagList}}
+              </span>
+            </div>
+
+            <div class="mt-auto d-flex justify-content-between align-items-center">
+              <span class="badge bg-success">
+                {{task.Priority}}
+              </span>
+              <div>
+                <button class="btn btn-sm btn-light me-1"
+                  (click)="editClick(task)"
+                  data-bs-toggle="modal" data-bs-target="#TaskModal">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+</svg>
+                </button>
+                <button class="btn btn-sm btn-light"
+                  (click)="deleteClick(task.TaskId)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+</svg>
+            </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal fade" id="TaskModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">{{ modalTitle }}</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Title</label>
+                <input type="text" class="form-control"
+                       [(ngModel)]="TaskTitle" name="TaskTitle" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Priority</label>
+                <select class="form-select"
+                        [(ngModel)]="Priority" name="Priority">
+                  <option>High</option>
+                  <option>Medium</option>
+                  <option>Low</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Start Day</label>
+                <input type="date" class="form-control"
+                       [(ngModel)]="StartDay" name="StartDay" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">End Day</label>
+                <input type="date" class="form-control"
+                       [(ngModel)]="EndDay" name="EndDay" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="2"
+                          [(ngModel)]="Description" name="Description">
+                </textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button *ngIf="modalTitle==='Add Task'"
+                  class="btn btn-success" (click)="createClick()">
+            <i class="bi bi-check-circle me-1"></i> Create
+          </button>
+          <button *ngIf="modalTitle==='Edit Task'"
+                  class="btn btn-warning" (click)="updateClick()">
+            <i class="bi bi-pencil-square me-1"></i> Update
+          </button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i> Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
