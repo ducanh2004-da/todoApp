@@ -1,17 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-
-interface Task {
-  TaskId: number;
-  TaskTitle: string;
-  Description: string;
-  Priority: number;
-  StartDay: Date;
-  EndDay: Date;
-  IsDone: boolean;
-  TagList: string[];
-}
+import { ElementRef, OnInit, OnDestroy, Component, ViewChild } from '@angular/core';
+import { TaskService } from './services/task.service';
+import { TaskStatus } from './enums/task-status.enum';
+import { Tag } from './models/tag.model';
+import { Task } from './models/task.model';
+import { TaskFormComponent } from './task-form/taskForm.component';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-task',
@@ -19,119 +12,105 @@ interface Task {
   styleUrls: ['./task.component.css']
 })
 export class TaskComponent implements OnInit {
+  @ViewChild('taskModal') taskModalRef!: ElementRef;
+  @ViewChild(TaskFormComponent) formComp!: TaskFormComponent;
 
-  // danh sách các biến để thao tác lên giao diện
+  public TaskStatus = TaskStatus;
+
   tasks: Task[] = [];
-  modalTitle = '';
-  TaskId = 0;
-  TaskTitle = '';
-  Description = '';
-  Priority = 0;
-  StartDay = '';
-  EndDay = '';
-  IsDone = false;
-  TagList: string[] = [];
+  tags: Tag[] = [];
+  taskDetails: Task | null = null;
 
-  // baseUrl đảm bảo URL API luôn đúng định dạng
-  private readonly baseUrl = environment.API_URL.endsWith('/')
-    ? environment.API_URL + 'task'
-    : environment.API_URL + '/task';
-    
-  constructor(private http: HttpClient) { }
+  modalTitle = '';
+  selectedStatus: TaskStatus = TaskStatus.All;
+
+  editData: any = null;
+
+  constructor(private taskService: TaskService) {}
 
   ngOnInit(): void {
-    this.refreshList();
+    this.loadData();
   }
 
-  refreshList() {
-    this.http.get<Task[]>(this.baseUrl)
-      .subscribe(data => this.tasks = data,
-        error => {
-          console.error('Error fetching tasks:', error);
-          alert('Failed to load tasks. Please try again later.');
-        }
-      )
+  loadData(): void {
+    this.taskService.loadData(this.selectedStatus).subscribe({
+      next: ([tasks, tags]) => {
+        this.tasks = tasks;
+        this.tags = tags;
+      },
+      error: () => alert('Failed to load data')
+    });
+  }
+
+  onStatusChange(status: TaskStatus) {
+    this.selectedStatus = status;
+    this.loadData();
   }
 
   addClick() {
     this.modalTitle = 'Add Task';
-    this.TaskId = 0;
-    this.TaskTitle = '';
-    this.Description = '';
-    this.Priority = 0;
-    this.StartDay = '';
-    this.EndDay = '';
-    this.IsDone = false;
-    this.TagList = [];
+    this.editData = null;
   }
+
   editClick(task: Task) {
     this.modalTitle = 'Edit Task';
-    this.TaskId = task.TaskId;
-    this.TaskTitle = task.TaskTitle;
-    this.Description = task.Description;
-    this.Priority = task.Priority;
-    this.StartDay = task.StartDay.toString();
-    this.EndDay = task.EndDay.toString();
-    this.IsDone = task.IsDone;
-    this.TagList = task.TagList;
-  }
-  createClick() {
-    const val = {
-      TaskId: this.TaskId,
-      TaskTitle: this.TaskTitle,
-      Description: this.Description,
-      Priority: this.Priority,
-      StartDay: this.StartDay,
-      EndDay: this.EndDay,
-    }
-    this.http.post(this.baseUrl, val)
-      .subscribe(() => {
-        alert('Thêm công việc thành công');
-        this.refreshList();
-      },
-        error => {
-          console.error('Error creating task:', error);
-          alert('Failed to create task. Please try again later.');
-        }
-      );
-  }
-  updateClick() {
-    const val = {
-      TaskId: this.TaskId,
-      TaskTitle: this.TaskTitle,
-      Description: this.Description,
-      Priority: this.Priority,
-      StartDay: this.StartDay,
-      EndDay: this.EndDay,
-      IsDone: this.IsDone,
-      TagList: this.TagList
-    }
-    this.http.put(`${this.baseUrl}/${this.TaskId}`, val)
-      .subscribe(() => {
-        alert('Cập nhật công việc thành công');
-        this.refreshList();
-      },
-        error => {
-          console.error('Error updating task:', error);
-          alert('Failed to update task. Please try again later.');
-        }
-      );
-  }
-  deleteClick(id:number){
-    if(!confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
-      return;
-    }
-    this.http.delete(`${this.baseUrl}/${id}`)
-      .subscribe(() => {
-        alert('Xóa công việc thành công');
-        this.refreshList();
-      },
-        error => {
-          console.error('Error deleting task:', error);
-          alert('Failed to delete task. Please try again later.');
-        }
-      );
+    this.editData = {
+      TaskId: task.TaskId,
+      TaskTitle: task.TaskTitle,
+      Description: task.Description,
+      Priority: task.Priority,
+      StartDay: task.StartDay,
+      EndDay: task.EndDay,
+      IsDone: task.IsDone,
+      TagId: task.TaskTags[0]?.TagId
+    };
   }
 
+  viewDetails(id: number) {
+    this.taskService.getTaskById(id).subscribe({
+      next: data => this.taskDetails = data,
+      error: () => alert('Failed to load details')
+    });
+  }
 
+  deleteClick(id: number) {
+    if (!confirm('Bạn có chắc chắn muốn xóa?')) return;
+    this.taskService.deleteTask(id).subscribe({
+      next: () => this.loadData(),
+      error: () => alert('Failed to delete')
+    });
+  }
+
+  doneTask(id: number) {
+    if (!confirm('Đánh dấu hoàn thành?')) return;
+    this.taskService.completeTask(id).subscribe({
+      next: () => this.loadData(),
+      error: () => alert('Failed to mark done')
+    });
+  }
+
+  exportCsv() {
+    this.taskService.exportCsv(this.selectedStatus).subscribe({
+      next: blob => {
+        const fileName = `tasks_${new Date().toISOString().slice(0,19).replace(/:/g,'')}.csv`;
+        saveAs(blob, fileName);
+      },
+      error: () => alert('Failed to export CSV')
+    });
+  }
+
+  onFormSubmit(formValue: any) {
+    if (this.modalTitle === 'Add Task') {
+      this.taskService.createTask(formValue).subscribe({
+        next: () => this.loadData(),
+        error: () => alert('Failed to create task')
+      });
+    } else {
+      this.taskService.updateTask(formValue).subscribe({
+        next: () => this.loadData(),
+        error: () => alert('Failed to update task')
+      });
+    }
+    this.taskModalRef.nativeElement.querySelector('.btn-close').click();
+  }
 }

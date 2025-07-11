@@ -1,16 +1,12 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
-using System;
-using System.Data;
+﻿using System.Globalization;
 using System.IO;
+using System;
+using System.Threading.Tasks;
+using backend.Interfaces;
 using backend.Models;
-using System.Text.Json;
-using System.Runtime.Intrinsics.Arm;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using backend.Models.DTO;
+using CsvHelper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
@@ -18,248 +14,107 @@ namespace backend.Controllers
     [ApiController]
     public class TaskController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _env;
-        public TaskController(IConfiguration configuration, IWebHostEnvironment env)
-        {
-            _configuration = configuration;
-            _env = env;
-        }
+        private readonly ITaskRepository _repo;
+        public TaskController(ITaskRepository repo) => _repo = repo;
 
-        // hiển thị danh sách task có filter(all/done/pending)
         [HttpGet]
-        public JsonResult Get([FromQuery] string status = "all")
+        public async Task<IActionResult> Get([FromQuery] string status = "all")
         {
-            string queryFilter = status.ToLower() switch
-            {
-                "pending" => "Where IsDone = 0",
-                "done" => "Where IsDone = 1",
-                _ => ""
-            };
-            string query = $@"
-                SELECT t.TaskId, t.TaskTitle, t.Description, t.Priority, t.StartDay, t.EndDay,
-                COALESCE(JSON_ARRAYAGG(ta.TagName), JSON_ARRAY()) AS TagList
-                FROM Tasks AS t
-                LEFT JOIN task_tags AS tt ON tt.TaskId = t.TaskId
-                LEFT JOIN Tags AS ta ON ta.TagId  = tt.TagId
-                {queryFilter}                    
-                GROUP BY t.TaskId, t.TaskTitle, t.Description, t.Priority, t.StartDay, t.EndDay
-                ORDER BY t.StartDay DESC, t.Priority DESC;
-             ";
-
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-            return new JsonResult(table);
+            var all = await _repo.GetAllAsync(status);
+            return Ok(all);
         }
 
-        // GET api/<TaskController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            string query = @"
-                Select * from Tasks Where TaskId = @TaskId;
-             ";
-
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myCommand.Parameters.AddWithValue("@TaskId", id);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-
-            //Nếu không tìm thấy thì trả về chuỗi rỗng 
-            if (table.Rows.Count == 0)
-                return "";
-
-            //Lấy row đầu và map vào object 
-            var row = table.Rows[0];
-            var obj = new
-            {
-                TaskId = Convert.ToUInt32(row["TaskId"]),
-                TaskTitle = row["TaskTitle"].ToString(),
-                Description = row["Description"] == DBNull.Value
-                              ? null
-                              : row["Description"].ToString(),
-                Priority = row["Priority"].ToString(),
-                StartDay = row["StartDay"] == DBNull.Value
-                              ? null
-                              : ((DateTime)row["StartDay"]).ToString("yyyy-MM-dd"),
-                EndDay = row["EndDay"] == DBNull.Value
-                              ? null
-                              : ((DateTime)row["EndDay"]).ToString("yyyy-MM-dd"),
-                IsDone = Convert.ToBoolean(row["IsDone"]),
-                Created_at = (DateTime)row["Created_at"],
-                Updated_at = (DateTime)row["Updated_at"]
-            };
-            return JsonSerializer.Serialize(obj);
+            var t = await _repo.GetByIdAsync(id);
+            if (t == null) return NotFound();
+            return Ok(t);
         }
 
-        // POST api/<TaskController>
         [HttpPost]
-        public JsonResult Post(Task task)
+        public async Task<IActionResult> Post([FromBody] TaskDTO task)
         {
-            string query = @"
-                Insert into Tasks(TaskTitle,Description,Priority,StartDay,EndDay) values (@TaskTitle,@Description,@Priority,@StartDay,@EndDay)
-             ";
+            if (string.IsNullOrWhiteSpace(task.TaskTitle))
+                return BadRequest("Task title is required.");
 
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myCommand.Parameters.AddWithValue("@TaskTitle", task.TaskTitle);
-                    myCommand.Parameters.AddWithValue("@Description", task.Description);
-                    myCommand.Parameters.AddWithValue("@Priority", task.Priority);
-                    myCommand.Parameters.AddWithValue("@StartDay", task.StartDay);
-                    myCommand.Parameters.AddWithValue("@EndDay", task.EndDay);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
+           
+            var newId = await _repo.AddAsync(task);
 
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-            return new JsonResult("added successfully");
+            
+            task.TaskId = newId;
+            return CreatedAtAction(nameof(Get), new { id = task.TaskId }, task);
         }
 
-        // PUT api/<TaskController>/5
         [HttpPut("{id}")]
-        public JsonResult Put(Task task, int id)
+        public async Task<IActionResult> Put(int id, [FromBody] TaskDTO task)
         {
-            string query = @"
-                Update Tasks set TaskTitle = @TaskTitle, Description = @Description, Priority = @Priority, StartDay = @StartDay, EndDay = @EndDay where TaskId = @TaskId;
-             ";
+            var exist = await _repo.GetByIdAsync(id);
+            if (exist == null) return NotFound();
 
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myCommand.Parameters.AddWithValue("@TaskId", id);
-                    myCommand.Parameters.AddWithValue("@TaskTitle", task.TaskTitle);
-                    myCommand.Parameters.AddWithValue("@Description", task.Description);
-                    myCommand.Parameters.AddWithValue("@Priority", task.Priority);
-                    myCommand.Parameters.AddWithValue("@StartDay", task.StartDay);
-                    myCommand.Parameters.AddWithValue("@EndDay", task.EndDay);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
+            
+            exist.TaskTitle = task.TaskTitle;
+            exist.Description = task.Description;
+            exist.Priority = task.Priority;
+            exist.StartDay = task.StartDay;
+            exist.EndDay = task.EndDay;
 
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-            return new JsonResult("updated successfully");
+            await _repo.UpdateAsync(exist);
+            return NoContent();
         }
 
-        // DELETE api/<TaskController>/5
         [HttpDelete("{id}")]
-        public JsonResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            string query = @"
-                Delete from Tasks where TaskId = @TaskId;
-             ";
-
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myCommand.Parameters.AddWithValue("@TaskId", id);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-            return new JsonResult("deleted successfully");
+            await _repo.DeleteAsync(id);
+            return NoContent();
         }
 
-        // để complete task
         [HttpPut("complete/{id}")]
-        public JsonResult MarkComplete(int id)
+        public async Task<IActionResult> MarkComplete(int id)
         {
-            string query = @"
-            UPDATE Tasks SET IsDone = 1, Updated_at = CURRENT_TIMESTAMP
-            WHERE TaskId = @TaskId;";
-
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            int rowsAffected;
-
-            using (var conn = new MySqlConnection(sqlDataSource))
-            using (var myCommand = new MySqlCommand(query, conn))
-            {
-                myCommand.Parameters.AddWithValue("@TaskId", id);
-
-                conn.Open();
-                rowsAffected = myCommand.ExecuteNonQuery();
-            }
-
-            if (rowsAffected == 0)
-                return new JsonResult("Không cập nhật thành công");
-
-            return new JsonResult("Cập nhật thành công");
+            await _repo.MarkCompleteAsync(id);
+            return NoContent();
         }
 
-        // thống kê báo cáo task
         [HttpGet("report")]
-        public JsonResult GetReport()
+        public async Task<IActionResult> Report()
         {
-            string query = @"
-                SELECT COUNT(*) AS total_tasks,SUM(IsDone = 1) AS DoneTasks,
-                SUM(IsDone = 0) AS PendingTasks,
-                SUM(Priority='High')  AS HighPriority,
-                SUM(Priority='Medium') AS MediumPriority,
-                SUM(Priority='Low') AS LowPriority FROM tasks;";
+            var rpt = await _repo.GetReportAsync();
+            return Ok(rpt);
+        }
 
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+        [HttpGet("csvexport")]
+        public async Task<IActionResult> ExportCsv()
+        {
+            var records = await _repo.GetAllForCsvAsync();
+
+            // 2) Tạo MemoryStream không dùng using để giữ nó mở
+            var mem = new MemoryStream();
+
+            // 3) Ghi BOM
+            using (var writer = new StreamWriter(mem, leaveOpen: true))
             {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    mycon.Close();
-                }
+                writer.Write('\uFEFF');
+                writer.Flush();
             }
-            return new JsonResult(table);
+
+            // 4) Ghi CSV vào stream (ghi luôn lên mem, vì leaveOpen=true)
+            using (var writer = new StreamWriter(mem, leaveOpen: true))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteHeader<TaskCsvModel>();
+                await csv.NextRecordAsync();
+                await csv.WriteRecordsAsync(records);
+                await writer.FlushAsync();
+            }
+
+            // 5) Đặt con trỏ về đầu
+            mem.Position = 0;
+
+            // 6) Trả về FileStreamResult — ASP.NET Core sẽ tự dispose mem sau khi ghi xong
+            var fileName = $"tasks_{DateTime.UtcNow:yyyyMMddHHmm}.csv";
+            return File(mem, "text/csv; charset=utf-8", fileName);
         }
     }
 }

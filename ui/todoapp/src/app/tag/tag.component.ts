@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 interface Tag {
   TagId: number;
   TagName: string;
+  Color: string;
   TaskList: string[];
 }
 @Component({
@@ -20,6 +21,7 @@ export class TagComponent implements OnInit {
   modalTitle = '';
   TagId = 0;
   TagName = '';
+  Color = '';
   TaskList: string[] = [];
 
   // baseUrl đảm bảo URL API luôn đúng định dạng
@@ -46,17 +48,20 @@ export class TagComponent implements OnInit {
     this.modalTitle = 'Add Tag';
     this.TagId = 0;
     this.TagName = '';
+    this.Color = '';
     this.TaskList = [];
   }
   editClick(tag: Tag) {
     this.modalTitle = 'Edit Tag';
     this.TagId = tag.TagId;
     this.TagName = tag.TagName;
+    this.Color = tag.Color;
     this.TaskList = tag.TaskList;
   }
   createClick() {
     const val = {
       TagName: this.TagName,
+      Color: this.Color,
       TaskList: this.TaskList
     }
     this.http.post(this.baseUrl, val)
@@ -72,6 +77,7 @@ export class TagComponent implements OnInit {
     const val = {
       TagId: this.TagId,
       TagName: this.TagName,
+      Color: this.Color,
       TaskList: this.TaskList
     }
     this.http.put(`${this.baseUrl}/${this.TagId}`, val)

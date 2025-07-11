@@ -1,0 +1,11 @@
+<div class="btn-group mb-4" role="group">
+      <button type="button"
+              class="btn btn-outline-primary"
+              (click)="statusChange.emit(TaskStatus.All)">All</button>
+      <button type="button"
+              class="btn btn-outline-success"
+              (click)="statusChange.emit(TaskStatus.Done)">Done</button>
+      <button type="button"
+              class="btn btn-outline-warning"
+              (click)="statusChange.emit(TaskStatus.Pending)">Pending</button>
+    </div>

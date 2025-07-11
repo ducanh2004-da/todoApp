@@ -1,46 +1,30 @@
-<section class="py-5" style="margin-top: 80px; background-color: #f8f9fa;">
-  <div class="container text-center">
-    <h1 class="display-5 fw-bold mb-5 text-primary">📊 Task Report</h1>
+<section class="pt-20 pb-5 bg-gray-100">
+  <div class="container mx-auto text-center px-4">
+    <h1 class="text-4xl font-bold mb-12 text-primary">📊 Task Report</h1>
 
-    <div class="row g-4 justify-content-center">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
       <!-- Total Tasks -->
-      <div class="col-md-4">
-        <div class="card shadow border-0">
-          <div class="card-body">
-            <h5 class="card-title text-uppercase text-muted mb-2">Total Tasks</h5>
-            <h2 class="fw-bold text-dark">2</h2>
-          </div>
-        </div>
+      <div class="w-full max-w-xs bg-white rounded-lg shadow p-6">
+        <h5 class="uppercase text-sm text-gray-500 mb-2">Total Tasks</h5>
+        <h2 class="text-3xl font-extrabold text-gray-800">{{ reports.TotalTasks }}</h2>
       </div>
 
       <!-- Completed Tasks -->
-      <div class="col-md-4">
-        <div class="card shadow border-0">
-          <div class="card-body">
-            <h5 class="card-title text-uppercase text-muted mb-2">Done</h5>
-            <h2 class="fw-bold text-success">2</h2>
-          </div>
-        </div>
+      <div class="w-full max-w-xs bg-white rounded-lg shadow p-6">
+        <h5 class="uppercase text-sm text-gray-500 mb-2">Done</h5>
+        <h2 class="text-3xl font-extrabold text-green-600">{{ reports.DoneTasks }}</h2>
       </div>
 
       <!-- Pending Tasks -->
-      <div class="col-md-4">
-        <div class="card shadow border-0">
-          <div class="card-body">
-            <h5 class="card-title text-uppercase text-muted mb-2">Pending</h5>
-            <h2 class="fw-bold text-warning">2</h2>
-          </div>
-        </div>
+      <div class="w-full max-w-xs bg-white rounded-lg shadow p-6">
+        <h5 class="uppercase text-sm text-gray-500 mb-2">Pending</h5>
+        <h2 class="text-3xl font-extrabold text-yellow-500">{{ reports.PendingTasks }}</h2>
       </div>
 
-      <!-- Overdue Tasks -->
-      <div class="col-md-4">
-        <div class="card shadow border-0">
-          <div class="card-body">
-            <h5 class="card-title text-uppercase text-muted mb-2">Overdue</h5>
-            <h2 class="fw-bold text-danger">2</h2>
-          </div>
-        </div>
+      <!-- High Priority Task -->
+      <div class="w-full max-w-xs bg-white rounded-lg shadow p-6">
+        <h5 class="uppercase text-sm text-gray-500 mb-2">High Priority Task</h5>
+        <h2 class="text-3xl font-extrabold text-red-600">{{ reports.HighPriority }}</h2>
       </div>
     </div>
   </div>

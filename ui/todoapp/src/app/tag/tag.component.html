@@ -1,102 +1,148 @@
-<section style="margin-top: 100px;" class="container">
-<div class="text-center my-4">
-  <button
-    type="button"
-    class="btn btn-primary btn-lg px-5 shadow"
-    (click)="addClick()"
-    data-bs-toggle="modal"
-    data-bs-target="#TagModal">
-    <i class="bi bi-plus-circle me-2"></i> Add Tag
-  </button>
-</div>
+<section class="mt-24 container mx-auto px-4">
+  <!-- Add Tag Button -->
+  <div class="text-center my-4">
+    <button
+      type="button"
+      class="inline-flex items-center px-5 py-3 bg-primary text-white text-lg rounded shadow hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary"
+      (click)="addClick()"
+      data-bs-toggle="modal"
+      data-bs-target="#TagModal">
+      <i class="bi bi-plus-circle me-2"></i> Add Tag
+    </button>
+  </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Task Belong</th>
-        <th>Actions</th>
+  <!-- Tags Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full table-auto border-collapse">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="px-4 py-2 text-left">Id</th>
+          <th class="px-4 py-2 text-left">Name</th>
+          <th class="px-4 py-2 text-left">Color</th>
+          <th class="px-4 py-2 text-left">Task Belong</th>
+          <th class="px-4 py-2 text-left">Actions</th>
         </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let tag of tags">
-        <td>{{ tag.TagId }}</td>
-        <td>{{ tag.TagName }}</td>
-        <td>{{ tag.TaskList }}</td>
-        <td>
-        <button
-          type="button"
-          class="btn btn-light me-1"
-          (click)="editClick(tag)"
-          data-bs-toggle="modal"
-          data-bs-target="#TagModal">
-          <!-- edit icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-</svg>
-        </button>
-        <button
-          type="button"
-          class="btn btn-light"
-          (click)="deleteClick(tag.TagId)"
-          data-bs-toggle="modal"
-          data-bs-target="#TagModal">
-          <!-- delete icon -->
-           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
-</svg>
-        </button>
-      </td>
+      </thead>
+      <tbody class="divide-y divide-gray-300">
+        <tr *ngFor="let tag of tags" class="even:bg-gray-50">
+          <td class="px-4 py-2">{{ tag.TagId }}</td>
+          <td class="px-4 py-2">{{ tag.TagName }}</td>
+          <td class="px-4 py-2">
+            <span [style.background-color]="tag.Color"
+                  class="inline-block px-2 py-1 rounded text-white text-sm">
+              {{ tag.Color }}
+            </span>
+          </td>
+          <td class="px-4 py-2">{{ tag.TaskList }}</td>
+          <td class="px-4 py-2 space-x-1">
+            <button
+              type="button"
+              class="inline-flex items-center px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded focus:outline-none"
+              (click)="editClick(tag)"
+              data-bs-toggle="modal"
+              data-bs-target="#TagModal">
+              <!-- edit icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                   class="bi bi-pencil-square" viewBox="0 0 16 16">
+                <path d="M15.502 1.94a.5.5 0 ..."/>
+                <path fill-rule="evenodd" d="M1 13.5A1.5 ..."/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded focus:outline-none"
+              (click)="deleteClick(tag.TagId)">
+              <!-- delete icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                   class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 ..."/>
+              </svg>
+            </button>
+          </td>
         </tr>
-    </tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
 
-<!-- Modal -->
-<div class="modal fade" id="TagModal" tabindex="-1" aria-labelledby="TagModalLabel" aria-hidden="true">
+  <!-- Tag Modal -->
+  <div class="modal fade" id="TagModal" tabindex="-1" aria-labelledby="TagModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ modalTitle }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="TagName" class="form-label">Tag Name</label>
-                    <input type="text" class="form-control" id="TagName" [(ngModel)]="TagName" name="TagName">
-                </div>
-                <div class="mb-3">
-                    <label for="TaskList" class="form-label">Task List</label>
-                    <input type="text" class="form-control" id="TaskList" [(ngModel)]="TaskList" name="TaskList">
-                </div>
-                <button
-                *ngIf="modalTitle === 'Add Tag'"
-                 type="button" class="btn btn-primary" (click)="createClick()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3H4.5a.5.5 0
-                        0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                    </svg>
-                    Add Tag
-                </button>
-                <button
-                *ngIf="modalTitle === 'Edit Tag'"
-                 type="button" class="btn btn-primary" (click)="updateClick()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3H4.5a.5.5 0
-                        0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                    </svg>
-                    Update Tag
-                </button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5
-                        0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
-                    </svg>
-                    Close
-                </button>
-            </div>
+      <div class="modal-content rounded-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-primary text-white px-6 py-4 flex justify-between items-center">
+          <h5 class="text-lg font-semibold">{{ modalTitle }}</h5>
+          <button type="button"
+                  class="text-white hover:text-gray-200 focus:outline-none"
+                  data-bs-dismiss="modal"
+                  aria-label="Close">
+            ✕
+          </button>
         </div>
+        <!-- Body -->
+        <div class="px-6 py-4 bg-white">
+          <div class="space-y-4">
+            <div>
+              <label for="TagName" class="block text-sm font-medium text-gray-700">Tag Name</label>
+              <input type="text"
+                     id="TagName"
+                     [(ngModel)]="TagName"
+                     name="TagName"
+                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+            </div>
+            <div>
+              <label for="Color" class="block text-sm font-medium text-gray-700">Color</label>
+              <input type="color"
+                     id="Color"
+                     [(ngModel)]="Color"
+                     name="Color"
+                     class="mt-1 block w-20 h-10 p-0 border border-gray-300 rounded focus:outline-none" />
+            </div>
+            <div>
+              <label for="TaskList" class="block text-sm font-medium text-gray-700">Task List</label>
+              <input type="text"
+                     id="TaskList"
+                     [(ngModel)]="TaskList"
+                     name="TaskList"
+                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+            </div>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+          <button
+            *ngIf="modalTitle === 'Add Tag'"
+            type="button"
+            (click)="createClick()"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary">
+            <!-- plus icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                 class="bi bi-plus-circle-fill mr-2" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 ..."/>
+            </svg>
+            Add Tag
+          </button>
+          <button
+            *ngIf="modalTitle === 'Edit Tag'"
+            type="button"
+            (click)="updateClick()"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary">
+            <!-- update icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                 class="bi bi-pencil-square mr-2" viewBox="0 0 16 16">
+              <path d="M15.502 1.94a.5.5 0 ..."/>
+              <path fill-rule="evenodd" d="M1 13.5A1.5 ..."/>
+            </svg>
+            Update Tag
+          </button>
+          <button
+            type="button"
+            data-bs-dismiss="modal"
+            class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+            <!-- close icon -->
+            ✕ Close
+          </button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 </section>

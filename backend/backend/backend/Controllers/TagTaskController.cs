@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
-using System.Data;
-using System;
-using System.IO;
+﻿using backend.Interfaces;
 using backend.Models;
-using System.Text.Json;
-using System.Runtime.Intrinsics.Arm;
+using backend.Models.DTO;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace backend.Controllers
 {
@@ -16,68 +10,42 @@ namespace backend.Controllers
     [ApiController]
     public class TagTaskController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _env;
-        public TagTaskController(IConfiguration configuration, IWebHostEnvironment env)
+        private readonly ITagTaskRepository _repository;
+
+        public TagTaskController(ITagTaskRepository repository)
         {
-            _configuration = configuration;
-            _env = env;
+            _repository = repository;
         }
 
-        // hiển thị danh sách TagTask
-        [HttpGet]
-        public JsonResult Get()
-        {
-
-            string query = @"
-                Select * from task_tags
-             ";
-
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-            return new JsonResult(table);
-        }
-
-
-        // POST api/<TagTaskController>
+        /// <summary>
+        /// Gán 1 tag cho task
+        /// POST /api/tagtask
+        /// Body: { "taskId": 1, "tagId": 2 }
+        /// </summary>
         [HttpPost]
-        public JsonResult Post(TagTask TagTask)
+        public async Task<IActionResult> Post([FromBody] TaskTagDTO TagTask)
         {
-            string query = @"
-                Insert into task_tags(TaskId,TagId) values (@TaskId,@TagId)
-             ";
+            await _repository.AddTagToTaskAsync(TagTask.TaskId, TagTask.TagId);
+            return Ok(new { message = "Tag đã được thêm vào task thành công." });
+        }
 
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("TaskAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    myCommand.Parameters.AddWithValue("@TaskId", TagTask.TaskId);
-                    myCommand.Parameters.AddWithValue("@TagId", TagTask.TagId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] TaskTagDTO TagTask)
+        {
+            await _repository.UpdateTagToTaskAsync(id, TagTask.TaskId, TagTask.TagId);
+            return Ok(new { message = "Tag đã được cập nhật vào task thành công." });
+        }
 
-                    myReader.Close();
-                    mycon.Close();
-                }
-            }
-            return new JsonResult("added successfully");
+        /// <summary>
+        /// Gỡ tag ra khỏi task
+        /// DELETE /api/tagtask
+        /// Body: { "taskId": 1, "tagId": 2 }
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _repository.RemoveTagFromTaskAsync(id);
+            return Ok(new { message = "Tag đã được gỡ khỏi task thành công." });
         }
     }
 }

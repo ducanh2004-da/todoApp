@@ -1,21 +1,99 @@
-<header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand fw-bold" href="#">To Do App</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+<header class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+  <div class="container mx-auto px-4">
+    <mat-toolbar class="flex items-center justify-between py-2">
+      <!-- Menu + Brand -->
+      <div class="flex items-center space-x-2">
+        <button mat-icon-button aria-label="Menu" class="text-gray-700">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="text-lg font-semibold text-gray-800">My App</span>
       </div>
-      <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="nav navbar-nav ms-auto">
-        <li class="nav-item"><button routerLink = "home" class="btn btn-light m-1 btn-outline-primary" Button>Home</button></li>
-        <li class="nav-item"><button routerLink = "task" class="btn btn-light m-1 btn-outline-primary" Button>Task</button></li>
-        <li class="nav-item"><button routerLink = "tag" class="btn btn-light m-1 btn-outline-primary" Button>Tag</button></li>
-        <li class="nav-item"><button routerLink = "report" class="btn btn-light m-1 btn-outline-primary" Button>Report</button></li>
-      </ul>
+
+      <!-- Navigation Links (hidden trên mobile) -->
+      <nav class="hidden md:flex space-x-2">
+        <button routerLink="home"
+                class="px-3 py-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-gray-700">
+          Home
+        </button>
+        <button routerLink="task"
+                class="px-3 py-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-gray-700">
+          Task
+        </button>
+        <button routerLink="tag"
+                class="px-3 py-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-gray-700">
+          Tag
+        </button>
+        <button routerLink="report"
+                class="px-3 py-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-gray-700">
+          Report
+        </button>
+      </nav>
+
+      <!-- Dark mode toggle + Icons -->
+      <div class="flex items-center space-x-2">
+        <mat-slide-toggle class="text-gray-700">Dark mode</mat-slide-toggle>
+        <button mat-icon-button aria-label="Favorites" class="text-gray-700">
+          <mat-icon>favorite</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Share" class="text-gray-700">
+          <mat-icon>share</mat-icon>
+        </button>
+
+        <!-- Mobile menu button -->
+        <button mat-icon-button aria-label="Open nav menu" class="md:hidden text-gray-700">
+          <mat-icon>menu</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+  </div>
+</header>
+  <router-outlet></router-outlet>
+
+<footer class="bg-gray-800 text-gray-200 pt-10 pb-6 mt-12">
+  <div class="container mx-auto px-4 space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Logo & Description -->
+      <div>
+        <h4 class="uppercase mb-4 text-lg font-semibold">My App</h4>
+        <p>Chúng tôi cung cấp giải pháp tốt nhất để nâng cao trải nghiệm người dùng.</p>
+        <div class="flex space-x-4 mt-4 text-xl">
+          <a href="#" class="hover:text-white"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="hover:text-white"><i class="bi bi-twitter"></i></a>
+          <a href="#" class="hover:text-white"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="hover:text-white"><i class="bi bi-github"></i></a>
+        </div>
+      </div>
+
+      <!-- Liên kết nhanh -->
+      <div>
+        <h5 class="mb-4 font-semibold">Liên kết</h5>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-white">Trang chủ</a></li>
+          <li><a href="#" class="hover:text-white">Giới thiệu</a></li>
+          <li><a href="#" class="hover:text-white">Dịch vụ</a></li>
+          <li><a href="#" class="hover:text-white">Liên hệ</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div>
+        <h5 class="mb-4 font-semibold">Đăng ký nhận tin</h5>
+        <form class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+          <input type="email" placeholder="Email của bạn"
+                 class="flex-grow px-3 py-2 rounded bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" />
+          <button type="submit"
+                  class="px-4 py-2 rounded bg-primary text-white font-medium hover:bg-primary-dark focus:outline-none">
+            Đăng ký
+          </button>
+        </form>
+        <small class="block mt-3 text-gray-400">Chúng tôi không chia sẻ email của bạn.</small>
       </div>
     </div>
-  </nav>
-</header>
-<router-outlet></router-outlet>
+
+    <hr class="border-gray-700" />
+
+    <div class="text-center text-sm text-gray-500">
+      © 2025 My App. All rights reserved.
+    </div>
+  </div>
+</footer>

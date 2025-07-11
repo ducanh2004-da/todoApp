@@ -1,0 +1,9 @@
+.cdk-overlay-container {
+  z-index: 2000;        /* Ánh xạ trên modal (1050) và backdrop (1040) */
+}
+
+.modal-dialog,
+.modal-content,
+.modal-body {
+  overflow: visible;    /* Đảm bảo popup không bị cắt */
+}
