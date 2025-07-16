@@ -1,8 +1,10 @@
 import {Component, Input, Output, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
-import { FormBuilder, Validators, ValidatorFn } from '@angular/forms';
+import { FormBuilder, Validators, ValidatorFn, FormGroup } from '@angular/forms';
 import { Tag } from '../models/tag.model';
 import { TaskStatus } from '../enums/task-status.enum';
 import { Task } from '../models/task.model';
+import { CreateTaskDTO } from '../models/create-task.dto';
+import { UpdateTaskDTO } from '../models/update-task.dto';
 import { getValidators,ValidatorDescriptor } from '../../validators/validation.decorators';
 import { RxFormBuilder, IFormGroup } from '@rxweb/reactive-form-validators';
 
@@ -13,25 +15,11 @@ import { RxFormBuilder, IFormGroup } from '@rxweb/reactive-form-validators';
 export class TaskFormComponent implements OnChanges {
   @Input() modalTitle!: string;
   @Input() tags: Tag[] = [];
-  @Input() initialData: {
-    TaskTitle: string;
-    Priority: string;
-    StartDay: string;
-    EndDay: string;
-    TagId: number;
-    Description: string;
-  } | null = null;
+  @Input() initialData: CreateTaskDTO | null = null;
 
-  @Output() submitForm = new EventEmitter<{
-    TaskTitle: string;
-    Priority: string;
-    StartDay: string;
-    EndDay: string;
-    TagId: number;
-    Description: string;
-  }>();
+  @Output() submitForm = new EventEmitter<CreateTaskDTO>();
 
-  form: IFormGroup<Task>;
+  form!: IFormGroup<CreateTaskDTO>;
 
   // constructor(private fb: FormBuilder) {
   //   this.form = this.fb.group({
@@ -44,7 +32,7 @@ export class TaskFormComponent implements OnChanges {
   //   });
   // }
   constructor(private formBuilder: RxFormBuilder) {
-    this.form = this.formBuilder.formGroup(new Task()) as IFormGroup<Task>;
+    this.form = this.formBuilder.formGroup(CreateTaskDTO) as IFormGroup<CreateTaskDTO>;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -53,14 +41,18 @@ export class TaskFormComponent implements OnChanges {
     }
     if (changes.modalTitle && this.modalTitle === 'Add Task') {
       // reset form when switching to Add
-      this.form.reset({
-        TaskTitle: '',
-        Priority: 'Medium',
-        StartDay: '',
-        EndDay: '',
-        TagId: this.tags.length ? this.tags[0].TagId : null,
-        Description: ''
-      });
+      // this.form.reset({
+      //   TaskTitle: '',
+      //   Priority: 'Medium',
+      //   StartDay: '',
+      //   EndDay: '',
+      //   TagId: this.tags.length ? this.tags[0].TagId : null,
+      //   Description: ''
+      // });
+       this.form.reset(new Task());                   // reset về giá trị mặc định trong model
+      if (this.tags.length) {
+        this.form.controls.TagId.setValue(this.tags[0].TagId);
+      }
     }
   }
 

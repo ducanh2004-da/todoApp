@@ -4,6 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { CreateTaskDTO } from '../models/create-task.dto';
+import { UpdateTaskDTO } from '../models/update-task.dto';
 import { Task } from '../models/task.model';
 import { Tag } from '../models/tag.model';
 
@@ -29,7 +31,7 @@ export class TaskService {
     return this.http.get<Task>(`${this.taskUrl}/${id}`);
   }
 
-  createTask(data: any): Observable<void> {
+  createTask(data: CreateTaskDTO): Observable<void> {
     // data includes TaskTitle, Description, Priority, StartDay, EndDay, IsDone?, TagId
     return this.http.post<{ TaskId: number }>(this.taskUrl, data)
       .pipe(
@@ -42,7 +44,7 @@ export class TaskService {
       );
   }
 
-  updateTask(data: any): Observable<void> {
+  updateTask(data: UpdateTaskDTO): Observable<void> {
     return this.http.put<void>(`${this.taskUrl}/${data.TaskId}`, data);
   }
 
